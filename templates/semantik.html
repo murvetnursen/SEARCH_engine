@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+
+{%block body%}
+<h3>Semantik Analiz</h3>
+<hr>
+Burada verilen web siteleri içerisinde anahtar kelimelerle semantik olarak alakalı kelimeler ayıklanır.
+<hr>
+<div class="row">
+    <div class="search">
+        <input type="text" id="ilk_input" class="form-control input-sm" maxlength="64" placeholder="Search" />
+    </div>
+</div>
+<hr>
+<div class="row">
+    <div class="search">
+        <input type="text" id="ikinci_input" class="form-control input-sm" maxlength="64" placeholder="Search" />
+    </div>
+</div>
+<div>
+    <button type="submit" onclick="semantik_click()" class="button bir">Search</a>
+</div>
+<hr>
+<hr>
+<div class="spinner-border" role="status" id="LoadingItem_2" style="display: none">
+            <span class="sr-only">Loading...</span>
+</div>
+<hr>
+<div> 
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">1#</th>
+                <th scope="col">Keyword</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody id="semantikli_tbody">
+            
+        </tbody>
+    </table>
+</div>
+<script>
+
+var semantik_ffk
+
+function semantik_click()
+{
+    $("#LoadingItem_2").show()
+    let url = "/analiz"
+    let data = $("#ilk_input").val()
+    let data_2 = $("#ikinci_input").val()
+
+
+    axios({
+        method: 'post',
+        url: url,
+        data: {"first_url": data, "second_url": data_2}
+    }).then(r => {
+        $("#LoadingItem_2").hide()
+        semantik_ffk = r.data; 
+        console.log(semantik_ffk)
+        var tbody_element = $("#semantikli_tbody")
+        var trItem = null
+        var i=0
+        for (var keyword in semantik_ffk){
+            i++;
+            trItem=`<tr>
+                        <th scope="row">${i}</th>
+                        <td>${keyword}</td>
+                        <td>${semantik_ffk[keyword]}</td>
+                    </tr>`
+            
+           tbody_element.append(trItem)
+        }
+    })
+    
+
+}
+
+</script>
+
+{%endblock%}
+
+{% block head %}
+
+<style>
+    #search {
+        float: right;
+        margin-top: 9px;
+        width: 250px;
+    }
+
+    .search {
+        padding: 5px 0;
+        width: 230px;
+        height: 30px;
+        position: relative;
+        left: 10px;
+        float: left;
+        line-height: 22px;
+    }
+
+        .search input {
+            position: absolute;
+            width: 0px;
+            float: Left;
+            margin-left: 210px;
+            -webkit-transition: all 0.7s ease-in-out;
+            -moz-transition: all 0.7s ease-in-out;
+            -o-transition: all 0.7s ease-in-out;
+            transition: all 0.7s ease-in-out;
+            height: 30px;
+            line-height: 18px;
+            padding: 0 2px 0 2px;
+            border-radius:1px;
+        }
+
+            .search:hover input, .search input:focus {
+                width: 500px;
+                margin-left: 180px;
+            }
+
+    .btn {
+        height: 30px;
+        position: absolute;
+        right: 50;
+        top: 5px;
+        border-radius:1px;
+    }
+
+</style>
+
+<style>
+    .button{
+        text-decoration: none;
+        font-size: 15px;
+        margin-left: 1px;
+        display: inline-block;
+        padding: 13px 50px;
+    }
+    .bir{
+        background-color: blue;
+        color: white;
+    }
+    .bir: hover{
+        opacity: 0.8;
+    }
+</style>
+{%endblock%}

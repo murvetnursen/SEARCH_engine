@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+
+{% block body %}
+<div class="content-wrapper">
+    <div class = "jumbotron text-center">
+        <h3>Hoşgeldiniz...</h3>
+        <p>Bu sitede url girişi ile arama sağlanacak.</p>
+        <div class="row">
+            <div class="search">
+                <input type="text" class="form-control input-sm" maxlength="64" placeholder="Search" />
+                <button type="submit" onclick="url_gonder()" class="btn btn-primary btn-sm">Search</button>
+            </div>
+        </div>
+        <br>
+        <div class="spinner-border" role="status" id="LoadingItem" style="display: none">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Keyword</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+</div>
+
+
+
+<script>
+function url_gonder()
+{
+    $("#LoadingItem").show()
+    let url = "/frekans"
+    let data = $("input").val()
+
+    axios({
+        method: 'post',
+        url: url,
+        data: {"url": data}
+    }).then(r => {
+        $("#LoadingItem").hide()
+        var sorted_dict = r.data;
+        var tbody_element = $("tbody")
+        var trItem = null
+        var i=0
+        for (var keyword in sorted_dict){
+            i++;
+            trItem=`<tr>
+                        <th scope="row">${i}</th>
+                        <td>${keyword}</td>
+                        <td>${sorted_dict[keyword]}</td>
+                    </tr>`
+            
+           tbody_element.append(trItem)
+        }
+    })
+    
+
+}
+</script>
+
+{% endblock body %}
+
+
+{% block head %}
+<style>
+#search {
+    float: right;
+    margin-top: 9px;
+    width: 250px;
+}
+
+.search {
+    padding: 5px 0;
+    width: 230px;
+    height: 30px;
+    position: relative;
+    left: 10px;
+    float: left;
+    line-height: 22px;
+}
+
+    .search input {
+        position: absolute;
+        width: 0px;
+        float: Left;
+        margin-left: 210px;
+        -webkit-transition: all 0.7s ease-in-out;
+        -moz-transition: all 0.7s ease-in-out;
+        -o-transition: all 0.7s ease-in-out;
+        transition: all 0.7s ease-in-out;
+        height: 30px;
+        line-height: 18px;
+        padding: 0 2px 0 2px;
+        border-radius:1px;
+    }
+
+        .search:hover input, .search input:focus {
+            width: 500px;
+            margin-left: 180px;
+        }
+
+.btn {
+    height: 30px;
+    position: absolute;
+    right: 50;
+    top: 5px;
+    border-radius:1px;
+}
+
+</style>
+
+{% endblock head %}

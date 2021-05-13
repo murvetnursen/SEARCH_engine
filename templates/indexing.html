@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h3>İndeksleme</h3>
+<hr>
+Bu aşamada projenin web sitesindeki bir sayfada URL girilecek 
+bir alan oluşturulacaktır. Girilen bu URL’nin içeriği ile web site kümesindeki her bir web sayfasının 
+içeriklerinin benzerlik skorları ayrı ayrı hesaplanacaktır. Ancak bu sefer skor hesaplaması yaparken 
+bu web site kümesinde bulunan web sayfalarının içeriğine ilaveten yine bu sayfalarda bulunan tüm
+alt URL’leri de dikkate alınacaktır. Alt URL’lerindeki anahtar kelimelerin yer alma sayılarına
+dayalı olarak skor formülünü yeniden geliştirilecek.
+<hr>
+<div class="row">
+    <div class="search">
+        <input type="text" id="derin" class="form-control input-sm" maxlength="64" placeholder="Search" />
+        <button type="submit" onclick="derinlikli()" class="btn btn-primary btn-sm">Search</button>
+    </div>
+</div>
+
+<div class="spinner-border" role="status" id="LoadingItem" style="display: none">
+            <span class="sr-only">Loading...</span>
+</div>
+<hr>
+<br>
+<hr>
+<div> 
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">1#</th>
+                <th scope="col">Keyword</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody id="derinlikli_tbody">
+            
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+var liste
+
+function derinlikli()
+{
+    $("#LoadingItem").show()
+    let url = "/derinlikliurl"
+    let data_list = []
+    data_list.push($("#derin").val())
+    console.log(data_list)
+    axios({
+        method: 'post',
+        url: url,
+        data: {"url_list": data_list}
+    }).then(r => {
+        $("#LoadingItem").hide()
+        var liste = r.data;
+        var tbody_element = $("#derinlikli_tbody")
+        var trItem = null
+        var i=0
+        for (var keyword in liste){
+            i++;
+            trItem=`<tr>
+                        <th scope="row">${i}</th>
+                        <td>${keyword}</td>
+                        <td>${liste[keyword]}</td>
+                    </tr>`
+            
+           tbody_element.append(trItem)
+        }
+    })
+    
+}
+
+</script>
+
+{% endblock  %}
+
+{% block head %}
+<style>
+#search {
+    float: right;
+    margin-top: 9px;
+    width: 250px;
+}
+
+.search {
+    padding: 5px 0;
+    width: 230px;
+    height: 30px;
+    position: relative;
+    left: 10px;
+    float: left;
+    line-height: 22px;
+}
+td{
+    word-break: break-all;
+}
+td:nth-child(2){
+    width: 580px;
+}
+
+    .search input {
+        position: absolute;
+        width: 0px;
+        float: Left;
+        margin-left: 210px;
+        -webkit-transition: all 0.7s ease-in-out;
+        -moz-transition: all 0.7s ease-in-out;
+        -o-transition: all 0.7s ease-in-out;
+        transition: all 0.7s ease-in-out;
+        height: 30px;
+        line-height: 18px;
+        padding: 0 2px 0 2px;
+        border-radius:1px;
+    }
+
+        .search:hover input, .search input:focus {
+            width: 500px;
+            margin-left: 180px;
+        }
+
+.btn {
+    height: 30px;
+    position: absolute;
+    right: 50;
+    top: 5px;
+    border-radius:1px;
+}
+
+</style>
+
+{% endblock head %}

@@ -1,0 +1,272 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h3>Skorlama</h3>
+<hr>
+Bu aşamada her iki URL metninde geçen kelimelerden en önemli kelimelerin belirlenerek anahtar kelimelerin 
+çıkartılması işlemi gerçekleştirilecek ve ilk URL için elde edilen anahtar kelimelerin 2. URL’nin içeriğinde yer alma sayısına
+dayalı bir benzerlik skor formulü uygulanacak.
+<hr>
+
+<div class="row">
+    <div class="search">
+        <input type="text" id="ilk_input" class="form-control input-sm" maxlength="64" placeholder="Search" />
+        <button type="submit" onclick="url_gonder()" class="btn btn-primary btn-sm">Search</button>
+    </div>
+</div>
+<hr>
+<div class="row">
+    <div class="search">
+        <input type="text" id="ikinci_input" class="form-control input-sm" maxlength="64" placeholder="Search" />
+        <button type="submit" onclick="url_gonder2()" class="btn btn-primary btn-sm">Search</button>
+    </div>
+</div>
+<hr>
+<div>
+    <button type="submit" onclick="benzerlik()" class="button bir">Benzerlik Oranı Hesapla</a>
+</div>
+
+<div class="spinner-border" role="status" id="LoadingItem" style="display: none">
+            <span class="sr-only">Loading...</span>
+</div>
+<br><br><br>
+<hr>
+<div> 
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">1#</th>
+                <th scope="col">Keyword</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody id="ilk_tbody">
+            
+        </tbody>
+    </table>
+
+   <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">2#</th>
+                <th scope="col">Keyword</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody id="ikinci_tbody">
+            
+        </tbody>
+    </table>
+
+    <div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">0%</div>
+    </div>
+<hr> 
+<br>
+</div>
+
+<script>
+
+var first_five_keyword_1
+var first_five_keyword_2
+
+function url_gonder()
+{
+    $("#LoadingItem").show()
+    let url = "/scoring2"
+    let data = $("#ilk_input").val()
+
+    axios({
+        method: 'post',
+        url: url,
+        data: {"url": data}
+    }).then(r => {
+        $("#LoadingItem").hide()
+        first_five_keyword_1 = r.data;
+        var tbody_element = $("#ilk_tbody")
+        var trItem = null
+        var i=0
+        for (var keyword in first_five_keyword_1){
+            i++;
+            trItem=`<tr>
+                        <th scope="row">${i}</th>
+                        <td>${keyword}</td>
+                        <td>${first_five_keyword_1[keyword]}</td>
+                    </tr>`
+            
+           tbody_element.append(trItem)
+        }
+    })
+    
+
+}
+
+function url_gonder2()
+{
+    $("#LoadingItem").show()
+    let url = "/scoring2"
+    let data = $("#ikinci_input").val()
+
+    axios({
+        method: 'post',
+        url: url,
+        data: {"url": data}
+    }).then(r => {
+        $("#LoadingItem").hide()
+        first_five_keyword_2 = r.data;
+        var tbody_element = $("#ikinci_tbody")
+        var trItem = null
+        var i=0
+        for (var keyword in first_five_keyword_2){
+            i++;
+            trItem=`<tr>
+                        <th scope="row">${i}</th>
+                        <td>${keyword}</td>
+                        <td>${first_five_keyword_2[keyword]}</td>
+                    </tr>`
+            
+           tbody_element.append(trItem)
+        }
+    })
+    
+
+}
+function benzerlik()
+{
+    var counter=0;
+    var tf=0;
+    var tf2=0;
+    for (var i in first_five_keyword_1){
+        tf += first_five_keyword_1[i]
+        for (var j in first_five_keyword_2){
+            if (i == j) 
+                {counter +=(first_five_keyword_1[i] + first_five_keyword_2[j]) }   
+            else
+                {continue}
+            }
+    }
+    for (var i in first_five_keyword_2){
+        tf2 += first_five_keyword_2[i]
+    }
+    var final = tf + tf2;
+    var oran = (counter*100)/final;
+    $(".progress-bar").css("width", `${parseInt(oran)}%`)
+    $(".progress-bar").text( `ORAN: ${oran}%`)
+
+}
+            
+</script>
+
+{% endblock  %}
+
+{% block head %}
+<style>
+    #search {
+        float: right;
+        margin-top: 9px;
+        width: 250px;
+    }
+
+    .search {
+        padding: 5px 0;
+        width: 230px;
+        height: 30px;
+        position: relative;
+        left: 10px;
+        float: left;
+        line-height: 22px;
+    }
+
+        .search input {
+            position: absolute;
+            width: 0px;
+            float: Left;
+            margin-left: 210px;
+            -webkit-transition: all 0.7s ease-in-out;
+            -moz-transition: all 0.7s ease-in-out;
+            -o-transition: all 0.7s ease-in-out;
+            transition: all 0.7s ease-in-out;
+            height: 30px;
+            line-height: 18px;
+            padding: 0 2px 0 2px;
+            border-radius:1px;
+        }
+
+            .search:hover input, .search input:focus {
+                width: 500px;
+                margin-left: 180px;
+            }
+
+    .btn {
+        height: 30px;
+        position: absolute;
+        right: 50;
+        top: 5px;
+        border-radius:1px;
+    }
+
+</style>
+
+<style>
+    #search {
+        float: right;
+        margin-top: 9px;
+        width: 250px;
+    }
+
+    .search {
+        padding: 5px 0;
+        width: 230px;
+        height: 30px;
+        position: relative;
+        left: 10px;
+        float: left;
+        line-height: 22px;
+    }
+
+        .search input {
+            position: absolute;
+            width: 0px;
+            float: Left;
+            margin-left: 210px;
+            -webkit-transition: all 0.7s ease-in-out;
+            -moz-transition: all 0.7s ease-in-out;
+            -o-transition: all 0.7s ease-in-out;
+            transition: all 0.7s ease-in-out;
+            height: 30px;
+            line-height: 18px;
+            padding: 0 2px 0 2px;
+            border-radius:1px;
+        }
+
+            .search:hover input, .search input:focus {
+                width: 500px;
+                margin-left: 180px;
+            }
+
+    .btn {
+        height: 30px;
+        position: absolute;
+        right: 50;
+        top: 5px;
+        border-radius:1px;
+    }    
+</style>
+
+<style>
+    .button{
+        text-decoration: none;
+        font-size: 15px;
+        margin-left: 1px;
+        display: inline-block;
+        padding: 13px 50px;
+    }
+    .bir{
+        background-color: blue;
+        color: white;
+    }
+    .bir: hover{
+        opacity: 0.8;
+    }
+</style>
+{%endblock%}
